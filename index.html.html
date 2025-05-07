@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Cercle de Lecture</title>
+<style>
+    body {
+      background: linear-gradient(to right, #e0f7fa, #e1f5fe);
+      color: #003344;
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+    }
+    .container {
+      max-width: 800px;
+      margin: 30px auto;
+      background: linear-gradient(135deg, #ffffff, #f9fbe7);
+      padding: 30px;
+      border-radius: 10px;
+      border: 2px solid #c5e1a5;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      animation: fadeIn 0.8s ease-in-out;
+    }
+    .hidden { display: none; }
+    .notif-area {
+      text-align: right;
+      margin-bottom: 10px;
+      font-size: 18px;
+    }
+    button {
+      margin-top: 10px;
+      padding: 10px;
+      border: none;
+      border-radius: 6px;
+      background-color: #007acc;
+      color: white;
+      cursor: pointer;
+      font-size: 16px;
+      transition: all 0.2s ease-in-out;
+    }
+    button:hover {
+      background-color: #388e3c !important;
+      transform: scale(1.05);
+    }
+    table {
+      width: 100%;
+      margin-top: 20px;
+      border-collapse: collapse;
+    }
+    table, th, td {
+      border: 1px solid #ccc;
+    }
+    th, td {
+      padding: 10px;
+      text-align: left;
+    }
+    .completed {
+      background-color: #d4ffd4;
+    }
+    h2, h3, h4, label {
+      color: #004d66;
+      font-family: 'Comic Sans MS', cursive;
+    }
+    input, select {
+      width: 100%;
+      padding: 12px;
+      margin-top: 5px;
+      margin-bottom: 15px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
+      font-size: 16px;
+    }
+    select {
+      background-color: #f0f9ff;
+    }
+    #book-table h4 {
+      background-color: #aed581;
+      padding: 10px;
+      border-radius: 8px;
+      color: #1b5e20;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+</style>
+</head>
+<body>
+<div class="container" id="login-section">
+<h2>Connexion</h2>
+<label>Es-tu un élève ou un professeur ?</label>
+<select id="role" onchange="showLoginForm()">
+<option value="">-- Choisir --</option>
+<option value="eleve">Élève</option>
+<option value="prof">Professeur</option>
+</select>
+<div class="hidden" id="login-form">
+<label>Identifiant</label>
+<input id="username" type="text"/>
+<label>Mot de passe</label>
+<input id="password" type="password"/>
+<button onclick="login()">Se connecter</button>
+</div>
+</div>
+<div class="container hidden" id="student-section">
+<h3 id="student-welcome"></h3>
+<label for="book">Choisir un livre</label>
+<select id="book" onchange="updateRoles()"></select>
+<label for="roleChoice">Choisir un rôle</label>
+<select id="roleChoice"></select>
+<button onclick="enregistrerRole()">Valider</button>
+<button onclick="voirHistorique()">Voir mon historique</button>
+<div class="hidden" id="historique-eleve"></div>
+</div>
+<div class="container hidden" id="professor-section">
+<div class="notif-area">
+<span>🔔 Notifications : </span><span id="notif-count">0</span>
+</div>
+<button id="clear-history-button" onclick="clearStudentHistoryPrompt()">🧹 Effacer l'historique d'un élève</button>
+<h3>Tableau de gestion (Professeur)</h3>
+<button onclick="voirHistoriqueTous()">Voir tout l'historique</button>
+<div id="book-table"></div>
+</div>
+<script>
+const roles = ["Animateur", "Maître des mots", "Maître des liens", "Maître des passages"];
+const teacherAccounts = { "omar": "omar1", "mllelagarrigue": "Mlle.VLagarrigue" };
+const studentAccounts = {"abdul_id": "abdul@234", "adam_id": "adam%288", "ahmad_id": "ahmad!172", "ali_id": "ali$822", "alicia_id": "alicia#169", "amin_id": "amin#985", "assaad_id": "assaad$668", "bilal_id": "bilal#646", "ghida_id": "ghida%529", "hanan_id": "hanan$842", "hassan_id": "hassan&894", "julia_id": "julia!148", "kelly_id": "kelly%821", "lana_id": "lana#225", "mia_id": "mia&828", "mila_id": "mila@528", "nour_id": "nour$686", "omar_id": "omar@928", "ralph_id": "ralph@237", "rami_id": "rami%316", "talal_id": "talal!699", "taleen_id": "taleen@136", "yahya_id": "yahya#836", "yasmina_id": "yasmina%547", "yasmine_id": "yasmine$909"};
+const studentFullNames = {"abdul_id": "Abdul Rahman KASSEM", "adam_id": "Adam ABI KHOUZAM", "ahmad_id": "Ahmad KOUCHE", "ali_id": "Ali SHAER", "alicia_id": "Alicia IBRAHIM", "amin_id": "Amin RAYESS", "assaad_id": "Assaad DIAB", "bilal_id": "Bilal MEHYO", "ghida_id": "Ghida HAIDAR AHMAD", "hanan_id": "Hanan SADDIK", "hassan_id": "Hassan RAHAL", "julia_id": "Julia Sophie JAMALEDDINE", "kelly_id": "Kelly MAZRAANI", "lana_id": "Lana JIZI", "mia_id": "Mia BARADA", "mila_id": "Mila NAJMEDDINE", "nour_id": "Nour MAHMOUD", "omar_id": "Omar HAMZE SINNO", "ralph_id": "Ralph RAHI", "rami_id": "Rami FAWAZ", "talal_id": "Talal ITANI", "taleen_id": "Taleen Farah PHARAON", "yahya_id": "Yahya HOURI HOMSI", "yasmina_id": "Yasmina MOUSSA", "yasmine_id": "Yasmine CHEHAITLY"};
+
+let notifications = JSON.parse(localStorage.getItem("notifications_v2") || "[]");
+
+function showLoginForm() {
+  document.getElementById("login-form").classList.remove("hidden");
+}
+function login() {
+  const role = document.getElementById("role").value;
+  const user = document.getElementById("username").value.trim().toLowerCase();
+  const pass = document.getElementById("password").value.trim();
+  if (role === "prof") {
+    if (teacherAccounts[user] === pass) {
+      document.getElementById("login-section").classList.add("hidden");
+      document.getElementById("professor-section").classList.remove("hidden");
+      afficherTableau();
+      updateNotif();
+    } else alert("Identifiants professeur incorrects.");
+  } else if (role === "eleve") {
+    if (studentAccounts[user] === pass) {
+      localStorage.setItem("currentStudent", user);
+      document.getElementById("login-section").classList.add("hidden");
+      document.getElementById("student-section").classList.remove("hidden");
+      document.getElementById("student-welcome").innerText = "Bonjour " + studentFullNames[user];
+      loadBooks();
+      
+    const allRoles = data.filter(e => e.student === student).map(e => e.role);
+    const uniqueRoles = [...new Set(allRoles)];
+    if (uniqueRoles.length === 4) {
+      const filtered = data.filter(e => e.student !== student);
+      localStorage.setItem("cercleData_v2", JSON.stringify(filtered));
+      alert("Tu as complété les 4 rôles. Ton historique est maintenant réinitialisé pour recommencer !");
+    }
+    updateRoles();
+    
+    } else alert("Identifiants élève incorrects.");
+  }
+}
+function loadBooks() {
+  document.getElementById("book").innerHTML = `<option value="">-- Sélectionner --</option>`;
+
+  const bookSelect = document.getElementById("book");
+  const books = ["La belle des eaux", "Les petites reines", "La 6ème", "Mes parents sont dans ma classe", "Niin", "JEfferson", "Trefle  d or", "Le fermier Gill", "Les 2 bossus", "Le journal d une grosse patate", "La belle aux cheveux d or", "Reves amers", "Un drole d ange gardien", "Panique dans la mythologie", "Mon père est une saucisse", "Les cousins Karlson", "Télémaque", "L’enfant loup.", "Dieux et héros des romains", "Theo", "6e pire année", "Swimming", "L’enfant océan", "La jeune fille", "Mimsi Pocket", "135 jours", "La malédiction du corbeau", "Le voyage inspiré", "Slam Dunk", "Le faucon déniché", "Le mystère Dédale"];
+  books.forEach(book => {
+    let opt = document.createElement("option");
+    opt.textContent = book;
+    opt.value = book;
+    bookSelect.appendChild(opt);
+  });
+}
+function updateRoles() {
+  const book = document.getElementById("book").value;
+  const student = localStorage.getItem("currentStudent");
+  const data = JSON.parse(localStorage.getItem("cercleData_v2") || "[]");
+  const group = data.filter(e => e.book === book);
+  const studentRoles = data.filter(e => e.student === student).map(e => e.role);
+  let options = '<option value="">-- Sélectionner --</option>';
+  roles.forEach(role => {
+    const taken = group.find(e => e.role === role);
+    const alreadyDid = studentRoles.includes(role);
+    const disable = taken || alreadyDid;
+    options += `<option value="${role}" ${disable ? 'disabled' : ''}>${role}${disable ? ' ❌' : ''}</option>`;
+  });
+  document.getElementById("roleChoice").innerHTML = options;
+}
+function enregistrerRole() {
+  const book = document.getElementById("book").value;
+  const role = document.getElementById("roleChoice").value;
+  const student = localStorage.getItem("currentStudent");
+  if (!book || !role) return alert("Sélectionne un livre et un rôle.");
+  let data = JSON.parse(localStorage.getItem("cercleData_v2") || "[]");
+  const group = data.filter(e => e.book === book);
+  if (group.length >= 4) return alert("Ce livre est déjà complet.");
+  if (group.find(e => e.role === role)) return alert("Ce rôle est déjà pris.");
+  const newEntry = { book, role, student, date: new Date().toLocaleDateString() };
+  data.push(newEntry);
+  localStorage.setItem("cercleData_v2", JSON.stringify(data));
+  alert("Ton rôle est enregistré !");
+  notifications.push(`${student} a emprunté le livre "${book}"`);
+  localStorage.setItem("notifications_v2", JSON.stringify(notifications));
+  updateNotif();
+  
+    const allRoles = data.filter(e => e.student === student).map(e => e.role);
+    const uniqueRoles = [...new Set(allRoles)];
+    if (uniqueRoles.length === 4) {
+      const filtered = data.filter(e => e.student !== student);
+      localStorage.setItem("cercleData_v2", JSON.stringify(filtered));
+      alert("Tu as complété les 4 rôles. Ton historique est maintenant réinitialisé pour recommencer !");
+    }
+    updateRoles();
+    
+}
+function afficherTableau() {
+  const data = JSON.parse(localStorage.getItem("cercleData_v2") || "[]");
+  const grouped = {};
+  data.forEach(entry => {
+    if (!grouped[entry.book]) grouped[entry.book] = [];
+    grouped[entry.book].push(entry);
+  });
+  let html = "";
+  for (let livre in grouped) {
+    const groupe = grouped[livre];
+    const complet = groupe.length >= 4;
+    html += `<h4>${livre} ${complet ? "✅" : ""}</h4>`;
+    html += `<table class="${complet ? 'completed' : ''}"><tr><th>Élève</th><th>Rôle</th><th>Date</th></tr>`;
+    groupe.forEach(e => {
+      html += `<tr><td>${studentFullNames[e.student] || e.student}</td><td>${e.role}</td><td>${e.date}</td></tr>`;
+    });
+    html += `</table>`;
+  }
+  document.getElementById("book-table").innerHTML = html || "Aucune donnée.";
+}
+function updateNotif() {
+  const notif = JSON.parse(localStorage.getItem("notifications_v2") || "[]");
+  document.getElementById("notif-count").innerText = notif.length;
+}
+function voirHistorique() {
+  const student = localStorage.getItem("currentStudent");
+  const data = JSON.parse(localStorage.getItem("cercleData_v2") || "[]");
+  const historique = data.filter(e => e.student === student);
+  let html = "<h4>Historique :</h4><ul>";
+  historique.forEach(e => {
+    html += `<li>${e.book} – ${e.role} (${e.date})</li>`;
+  });
+  html += "</ul>";
+  document.getElementById("historique-eleve").classList.remove("hidden");
+  document.getElementById("historique-eleve").innerHTML = html;
+}
+function voirHistoriqueTous() {
+  const data = JSON.parse(localStorage.getItem("cercleData_v2") || "[]");
+  let html = "<h4>Historique complet :</h4><ul>";
+  data.forEach(e => {
+    html += `<li>${e.student} – ${e.book} – ${e.role} (${e.date})</li>`;
+  });
+  html += "</ul>";
+  alert(html);
+}
+function clearStudentHistoryPrompt() {
+  const prof = document.getElementById("username").value.trim().toLowerCase();
+  if (prof !== "omar") {
+    alert("Veuillez contacter Omar Chaar pour activer ce bouton.");
+    return;
+  }
+  const studentId = prompt("Entrez l'identifiant de l'élève à effacer (ex: celinefawaz)");
+  if (!studentId) return;
+  let data = JSON.parse(localStorage.getItem("cercleData_v2") || "[]");
+  data = data.filter(e => e.student !== studentId);
+  localStorage.setItem("cercleData_v2", JSON.stringify(data));
+  alert("Historique de l'élève supprimé.");
+  afficherTableau();
+}
+updateNotif();
+
+</script>
+</body>
+</html>
