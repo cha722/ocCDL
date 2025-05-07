@@ -155,11 +155,10 @@ function login() {
       
     const allRoles = data.filter(e => e.student === student).map(e => e.role);
     const uniqueRoles = [...new Set(allRoles)];
-    if (uniqueRoles.length === 4) {
-      const filtered = data.filter(e => e.student !== student);
-      localStorage.setItem("cercleData_v2", JSON.stringify(filtered));
-      alert("Tu as complété les 4 rôles. Ton historique est maintenant réinitialisé pour recommencer !");
-    }
+   if (uniqueRoles.length === 4) {
+  alert("Tu as complété les 4 rôles. Tu peux maintenant recommencer avec les mêmes rôles sur d'autres livres !");
+}
+
     updateRoles();
     
     } else alert("Identifiants élève incorrects.");
@@ -187,7 +186,13 @@ function updateRoles() {
   roles.forEach(role => {
     const taken = group.find(e => e.role === role);
     const alreadyDid = studentRoles.includes(role);
-    const disable = taken || alreadyDid;
+let disable = taken;
+const allRoles = data.filter(e => e.student === student).map(e => e.role);
+const uniqueRoles = [...new Set(allRoles)];
+if (uniqueRoles.length < 4) {
+  disable = taken || alreadyDid;
+}
+
     options += `<option value="${role}" ${disable ? 'disabled' : ''}>${role}${disable ? ' ❌' : ''}</option>`;
   });
   document.getElementById("roleChoice").innerHTML = options;
@@ -212,10 +217,9 @@ function enregistrerRole() {
     const allRoles = data.filter(e => e.student === student).map(e => e.role);
     const uniqueRoles = [...new Set(allRoles)];
     if (uniqueRoles.length === 4) {
-      const filtered = data.filter(e => e.student !== student);
-      localStorage.setItem("cercleData_v2", JSON.stringify(filtered));
-      alert("Tu as complété les 4 rôles. Ton historique est maintenant réinitialisé pour recommencer !");
-    }
+  alert("Tu as complété les 4 rôles. Tu peux maintenant recommencer avec les mêmes rôles sur d'autres livres !");
+}
+
     updateRoles();
     
 }
