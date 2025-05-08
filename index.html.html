@@ -5,86 +5,116 @@
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
 <title>Cercle de Lecture</title>
 <style>
-    body {
-      background: linear-gradient(to right, #e0f7fa, #e1f5fe);
-      color: #003344;
-      font-family: Arial, sans-serif;
-      margin: 0;
-      padding: 0;
+  body {
+    background: linear-gradient(to right, #e0f7fa, #e1f5fe);
+    color: #003344;
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+  }
+
+  .container {
+    max-width: 800px;
+    margin: 30px auto;
+    background: linear-gradient(135deg, #ffffff, #f9fbe7);
+    padding: 30px;
+    border-radius: 10px;
+    border: 2px solid #c5e1a5;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    animation: fadeIn 0.8s ease-in-out;
+  }
+
+  .hidden {
+    display: none;
+  }
+
+  .notif-area {
+    text-align: right;
+    margin-bottom: 10px;
+    font-size: 18px;
+  }
+
+  button {
+    margin-top: 10px;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 6px;
+    background-color: #007acc;
+    color: white;
+    cursor: pointer;
+    font-size: 16px;
+    transition: all 0.2s ease-in-out;
+  }
+
+  button:hover {
+    background-color: #388e3c !important;
+    transform: scale(1.05);
+  }
+
+  table {
+    width: 100%;
+    margin-top: 20px;
+    border-collapse: collapse;
+  }
+
+  table, th, td {
+    border: 1px solid #ccc;
+  }
+
+  th, td {
+    padding: 10px;
+    text-align: left;
+  }
+
+  .completed {
+    background-color: #d4ffd4;
+  }
+
+  h2, h3, h4, label {
+    color: #004d66;
+    font-family: 'Comic Sans MS', cursive;
+  }
+
+  input, select {
+    width: 100%;
+    padding: 12px;
+    margin-top: 5px;
+    margin-bottom: 15px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
+    font-size: 16px;
+  }
+
+  select {
+    background-color: #f0f9ff;
+  }
+
+  #book-table h4 {
+    background-color: #aed581;
+    padding: 10px;
+    border-radius: 8px;
+    color: #1b5e20;
+  }
+
+  ul {
+    padding-left: 20px;
+  }
+
+  ul li {
+    margin-bottom: 5px;
+  }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
     }
-    .container {
-      max-width: 800px;
-      margin: 30px auto;
-      background: linear-gradient(135deg, #ffffff, #f9fbe7);
-      padding: 30px;
-      border-radius: 10px;
-      border: 2px solid #c5e1a5;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-      animation: fadeIn 0.8s ease-in-out;
+    to {
+      opacity: 1;
+      transform: translateY(0);
     }
-    .hidden { display: none; }
-    .notif-area {
-      text-align: right;
-      margin-bottom: 10px;
-      font-size: 18px;
-    }
-    button {
-      margin-top: 10px;
-      padding: 10px;
-      border: none;
-      border-radius: 6px;
-      background-color: #007acc;
-      color: white;
-      cursor: pointer;
-      font-size: 16px;
-      transition: all 0.2s ease-in-out;
-    }
-    button:hover {
-      background-color: #388e3c !important;
-      transform: scale(1.05);
-    }
-    table {
-      width: 100%;
-      margin-top: 20px;
-      border-collapse: collapse;
-    }
-    table, th, td {
-      border: 1px solid #ccc;
-    }
-    th, td {
-      padding: 10px;
-      text-align: left;
-    }
-    .completed {
-      background-color: #d4ffd4;
-    }
-    h2, h3, h4, label {
-      color: #004d66;
-      font-family: 'Comic Sans MS', cursive;
-    }
-    input, select {
-      width: 100%;
-      padding: 12px;
-      margin-top: 5px;
-      margin-bottom: 15px;
-      border-radius: 8px;
-      border: 1px solid #ccc;
-      box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
-      font-size: 16px;
-    }
-    select {
-      background-color: #f0f9ff;
-    }
-    #book-table h4 {
-      background-color: #aed581;
-      padding: 10px;
-      border-radius: 8px;
-      color: #1b5e20;
-    }
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(20px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
+  }
 </style>
 </head>
 <body>
@@ -115,13 +145,15 @@
 <div class="hidden" id="historique-eleve"></div>
 </div>
 <div class="container hidden" id="professor-section">
-<div class="notif-area">
-<span>🔔 Notifications : </span><span id="notif-count">0</span>
-</div>
-<button id="clear-history-button" onclick="clearStudentHistoryPrompt()">🧹 Effacer l'historique d'un élève</button>
-<h3>Tableau de gestion (Professeur)</h3>
-<button onclick="voirHistoriqueTous()">Voir tout l'historique</button>
-<div id="book-table"></div>
+  <div class="notif-area">
+    <span>🔔 Notifications : </span><span id="notif-count">0</span>
+  </div>
+  <button id="clear-history-button" onclick="clearStudentHistoryPrompt()">🧹 Effacer l'historique d'un élève</button>
+  <h3>Tableau de gestion (Professeur)</h3>
+  <button onclick="voirHistoriqueTous()">Voir tout l'historique</button>
+  <button onclick="exportHistorique('pdf')">📄 Exporter en PDF</button>
+  <button onclick="exportHistorique('excel')">📊 Exporter en Excel</button>
+  <div id="book-table"></div>
 </div>
 <script>
 const roles = ["Animateur", "Maître des mots", "Maître des liens", "Maître des passages"];
@@ -280,6 +312,7 @@ function enregistrerRole() {
   const newEntry = { book, role, student, date: new Date().toLocaleDateString() };
   data.push(newEntry);
   localStorage.setItem("cercleData_v2", JSON.stringify(data));
+  saveOnlineData(data);
   alert("Ton rôle est enregistré !");
   notifications.push(`${student} a emprunté le livre "${book}"`);
   localStorage.setItem("notifications_v2", JSON.stringify(notifications));
@@ -359,8 +392,39 @@ function clearStudentHistoryPrompt() {
   afficherTableau();
 }
 
+function exportHistorique(format = "pdf") {
+  const data = JSON.parse(localStorage.getItem("cercleData_v2") || "[]");
+  let content = "Élève;Livre;Rôle;Date\n";
+  data.forEach(e => {
+    content += `${studentFullNames[e.student] || e.student};${e.book};${e.role};${e.date}\n`;
+  });
+
+  if (format === "excel") {
+    const blob = new Blob(["\uFEFF" + content], { type: "application/vnd.ms-excel" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "historique_cercle.xlsx";
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
+  if (format === "pdf") {
+    const win = window.open("", "", "height=700,width=900");
+    win.document.write("<html><head><title>Historique</title><style>table{border-collapse:collapse;width:100%}td,th{border:1px solid #888;padding:8px}</style></head><body>");
+    win.document.write("<h2>Historique du Cercle de Lecture</h2><table><tr><th>Élève</th><th>Livre</th><th>Rôle</th><th>Date</th></tr>");
+    data.forEach(e => {
+      win.document.write(`<tr><td>${studentFullNames[e.student] || e.student}</td><td>${e.book}</td><td>${e.role}</td><td>${e.date}</td></tr>`);
+    });
+    win.document.write("</table></body></html>");
+    win.document.close();
+    win.print();
+  }
+}
+
 updateNotif();
 </script>
+
 
 </body>
 </html>
