@@ -225,16 +225,20 @@ function login() {
   const user = document.getElementById("username").value.trim().toLowerCase();
   const pass = document.getElementById("password").value.trim();
 
-  if (role === "prof") {
-    if (teacherAccounts[user] === pass) {
-      document.getElementById("login-section").classList.add("hidden");
-      document.getElementById("professor-section").classList.remove("hidden");
+if (role === "prof") {
+  if (teacherAccounts[user] === pass) {
+    document.getElementById("login-section").classList.add("hidden");
+    document.getElementById("professor-section").classList.remove("hidden");
+
+    loadOnlineData((data) => {
+      localStorage.setItem("cercleData_v2", JSON.stringify(data));
       afficherTableau();
       updateNotif();
-    } else {
-      alert("Identifiants professeur incorrects.");
-    }
+    });
+  } else {
+    alert("Identifiants professeur incorrects.");
   }
+}
 
   else if (role === "eleve") {
     if (studentAccounts[user] === pass) {
