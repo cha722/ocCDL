@@ -188,12 +188,11 @@ function login() {
       localStorage.setItem("currentStudent", user);
       document.getElementById("login-section").classList.add("hidden");
       document.getElementById("student-section").classList.remove("hidden");
-    loadBooks();
       document.getElementById("student-welcome").innerText = "Bonjour " + studentFullNames[user];
 
       loadOnlineData((data) => {
         localStorage.setItem("cercleData_v2", JSON.stringify(data));
-        loadBooks();
+        loadBooks(); // <== Important ! doit être ici après avoir mis à jour le localStorage
         updateRoles();
 
         const allRoles = data.filter(e => e.student === user).map(e => e.role);
@@ -207,6 +206,7 @@ function login() {
     }
   }
 }
+
 
 function updateRoles() {
   const book = document.getElementById("book").value;
