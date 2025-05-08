@@ -188,6 +188,7 @@ function login() {
       localStorage.setItem("currentStudent", user);
       document.getElementById("login-section").classList.add("hidden");
       document.getElementById("student-section").classList.remove("hidden");
+    loadBooks();
       document.getElementById("student-welcome").innerText = "Bonjour " + studentFullNames[user];
 
       loadOnlineData((data) => {
