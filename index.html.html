@@ -135,11 +135,32 @@ const books = [
   "Le voyage inspiré", "Slam Dunk", "Le faucon déniché", "Le mystère Dédale"
 ];
 
-const teacherAccounts = { "omar": "omar1", "mllelagarrigue": "Mlle.VLagarrigue" };
-const studentAccounts = {"abdul_id": "abdul@234", "adam_id": "adam%288", "ahmad_id": "ahmad!172", "ali_id": "ali$822", "alicia_id": "alicia#169", "amin_id": "amin#985", "assaad_id": "assaad$668", "bilal_id": "bilal#646", "ghida_id": "ghida%529", "hanan_id": "hanan$842", "hassan_id": "hassan&894", "julia_id": "julia!148", "kelly_id": "kelly%821", "lana_id": "lana#225", "mia_id": "mia&828", "mila_id": "mila@528", "nour_id": "nour$686", "omar_id": "omar@928", "ralph_id": "ralph@237", "rami_id": "rami%316", "talal_id": "talal!699", "taleen_id": "taleen@136", "yahya_id": "yahya#836", "yasmina_id": "yasmina%547", "yasmine_id": "yasmine$909", "julia_id2": "julia%884"};
-const studentFullNames = {"abdul_id": "Abdul Rahman KASSEM", "adam_id": "Adam ABI KHOUZAM", "ahmad_id": "Ahmad KOUCHE", "ali_id": "Ali SHAER", "alicia_id": "Alicia IBRAHIM", "amin_id": "Amin RAYESS", "assaad_id": "Assaad DIAB", "bilal_id": "Bilal MEHYO", "ghida_id": "Ghida HAIDAR AHMAD", "hanan_id": "Hanan SADDIK", "hassan_id": "Hassan RAHAL", "julia_id": "Julia Sophie JAMALEDDINE", "kelly_id": "Kelly MAZRAANI", "lana_id": "Lana JIZI", "mia_id": "Mia BARADA", "mila_id": "Mila NAJMEDDINE", "nour_id": "Nour MAHMOUD", "omar_id": "Omar HAMZE SINNO", "ralph_id": "Ralph RAHI", "rami_id": "Rami FAWAZ", "talal_id": "Talal ITANI", "taleen_id": "Taleen Farah PHARAON", "yahya_id": "Yahya HOURI HOMSI", "yasmina_id": "Yasmina MOUSSA", "yasmine_id": "Yasmine CHEHAITLY", "julia_id2": "Julia HASSAN"};
+const teacherAccounts = {
+  "omar": "omar1", "mllelagarrigue": "Mlle.VLagarrigue"
+};
+
+const studentAccounts = {
+  "abdul_id": "abdul@234", "adam_id": "adam%288", "ahmad_id": "ahmad!172", "ali_id": "ali$822",
+  "alicia_id": "alicia#169", "amin_id": "amin#985", "assaad_id": "assaad$668", "bilal_id": "bilal#646",
+  "ghida_id": "ghida%529", "hanan_id": "hanan$842", "hassan_id": "hassan&894", "julia_id": "julia!148",
+  "kelly_id": "kelly%821", "lana_id": "lana#225", "mia_id": "mia&828", "mila_id": "mila@528",
+  "nour_id": "nour$686", "omar_id": "omar@928", "ralph_id": "ralph@237", "rami_id": "rami%316",
+  "talal_id": "talal!699", "taleen_id": "taleen@136", "yahya_id": "yahya#836", "yasmina_id": "yasmina%547",
+  "yasmine_id": "yasmine$909", "julia_id2": "julia%884"
+};
+
+const studentFullNames = {
+  "abdul_id": "Abdul Rahman KASSEM", "adam_id": "Adam ABI KHOUZAM", "ahmad_id": "Ahmad KOUCHE", "ali_id": "Ali SHAER",
+  "alicia_id": "Alicia IBRAHIM", "amin_id": "Amin RAYESS", "assaad_id": "Assaad DIAB", "bilal_id": "Bilal MEHYO",
+  "ghida_id": "Ghida HAIDAR AHMAD", "hanan_id": "Hanan SADDIK", "hassan_id": "Hassan RAHAL", "julia_id": "Julia Sophie JAMALEDDINE",
+  "kelly_id": "Kelly MAZRAANI", "lana_id": "Lana JIZI", "mia_id": "Mia BARADA", "mila_id": "Mila NAJMEDDINE",
+  "nour_id": "Nour MAHMOUD", "omar_id": "Omar HAMZE SINNO", "ralph_id": "Ralph RAHI", "rami_id": "Rami FAWAZ",
+  "talal_id": "Talal ITANI", "taleen_id": "Taleen Farah PHARAON", "yahya_id": "Yahya HOURI HOMSI",
+  "yasmina_id": "Yasmina MOUSSA", "yasmine_id": "Yasmine CHEHAITLY", "julia_id2": "Julia HASSAN"
+};
 
 let notifications = JSON.parse(localStorage.getItem("notifications_v2") || "[]");
+
 const BIN_ID = "681c795f8960c979a5957527";
 const API_KEY = "$2a$10$e8COjJNqV/ReJs5XiIW7aOntP2QEh3F8EDXCeUmx4oMyRzg2NHobm";
 
@@ -163,10 +184,10 @@ function saveOnlineData(data) {
   });
 }
 
-
 function showLoginForm() {
   document.getElementById("login-form").classList.remove("hidden");
 }
+
 function login() {
   const role = document.getElementById("role").value;
   const user = document.getElementById("username").value.trim().toLowerCase();
@@ -192,7 +213,7 @@ function login() {
 
       loadOnlineData((data) => {
         localStorage.setItem("cercleData_v2", JSON.stringify(data));
-        loadBooks(); // <== Important ! doit être ici après avoir mis à jour le localStorage
+        loadBooks();
         updateRoles();
 
         const allRoles = data.filter(e => e.student === user).map(e => e.role);
@@ -207,37 +228,55 @@ function login() {
   }
 }
 
+function loadBooks() {
+  const select = document.getElementById("book");
+  select.innerHTML = '<option value="">-- Choisir un livre --</option>';
+  books.forEach(book => {
+    const option = document.createElement("option");
+    option.value = book;
+    option.textContent = book;
+    select.appendChild(option);
+  });
+}
 
 function updateRoles() {
   const book = document.getElementById("book").value;
   const student = localStorage.getItem("currentStudent");
   const data = JSON.parse(localStorage.getItem("cercleData_v2") || "[]");
+
   const group = data.filter(e => e.book === book);
   const studentRoles = data.filter(e => e.student === student).map(e => e.role);
+  const uniqueStudentRoles = [...new Set(studentRoles)];
+
   let options = '<option value="">-- Sélectionner --</option>';
   roles.forEach(role => {
-    const taken = group.find(e => e.role === role);
+    const taken = group.some(e => e.role === role);
     const alreadyDid = studentRoles.includes(role);
-let disable = taken;
-const allRoles = data.filter(e => e.student === student).map(e => e.role);
-const uniqueRoles = [...new Set(allRoles)];
-if (uniqueRoles.length < 4) {
-  disable = taken || alreadyDid;
-}
+    let disable = false;
+
+    if (uniqueStudentRoles.length < 4) {
+      disable = taken || alreadyDid;
+    } else {
+      disable = taken;
+    }
 
     options += `<option value="${role}" ${disable ? 'disabled' : ''}>${role}${disable ? ' ❌' : ''}</option>`;
   });
+
   document.getElementById("roleChoice").innerHTML = options;
 }
+
 function enregistrerRole() {
   const book = document.getElementById("book").value;
   const role = document.getElementById("roleChoice").value;
   const student = localStorage.getItem("currentStudent");
   if (!book || !role) return alert("Sélectionne un livre et un rôle.");
   let data = JSON.parse(localStorage.getItem("cercleData_v2") || "[]");
+
   const group = data.filter(e => e.book === book);
   if (group.length >= 4) return alert("Ce livre est déjà complet.");
   if (group.find(e => e.role === role)) return alert("Ce rôle est déjà pris.");
+
   const newEntry = { book, role, student, date: new Date().toLocaleDateString() };
   data.push(newEntry);
   localStorage.setItem("cercleData_v2", JSON.stringify(data));
@@ -245,16 +284,16 @@ function enregistrerRole() {
   notifications.push(`${student} a emprunté le livre "${book}"`);
   localStorage.setItem("notifications_v2", JSON.stringify(notifications));
   updateNotif();
-  
-    const allRoles = data.filter(e => e.student === student).map(e => e.role);
-    const uniqueRoles = [...new Set(allRoles)];
-    if (uniqueRoles.length === 4) {
-  alert("Tu as complété les 4 rôles. Tu peux maintenant recommencer avec les mêmes rôles sur d'autres livres !");
+
+  const allRoles = data.filter(e => e.student === student).map(e => e.role);
+  const uniqueRoles = [...new Set(allRoles)];
+  if (uniqueRoles.length === 4) {
+    alert("Tu as complété les 4 rôles. Tu peux maintenant recommencer avec les mêmes rôles sur d'autres livres !");
+  }
+
+  updateRoles();
 }
 
-    updateRoles();
-    
-}
 function afficherTableau() {
   const data = JSON.parse(localStorage.getItem("cercleData_v2") || "[]");
   const grouped = {};
@@ -275,10 +314,12 @@ function afficherTableau() {
   }
   document.getElementById("book-table").innerHTML = html || "Aucune donnée.";
 }
+
 function updateNotif() {
   const notif = JSON.parse(localStorage.getItem("notifications_v2") || "[]");
   document.getElementById("notif-count").innerText = notif.length;
 }
+
 function voirHistorique() {
   const student = localStorage.getItem("currentStudent");
   const data = JSON.parse(localStorage.getItem("cercleData_v2") || "[]");
@@ -291,6 +332,7 @@ function voirHistorique() {
   document.getElementById("historique-eleve").classList.remove("hidden");
   document.getElementById("historique-eleve").innerHTML = html;
 }
+
 function voirHistoriqueTous() {
   const data = JSON.parse(localStorage.getItem("cercleData_v2") || "[]");
   let html = "<h4>Historique complet :</h4><ul>";
@@ -300,6 +342,7 @@ function voirHistoriqueTous() {
   html += "</ul>";
   alert(html);
 }
+
 function clearStudentHistoryPrompt() {
   const prof = document.getElementById("username").value.trim().toLowerCase();
   if (prof !== "omar") {
@@ -315,8 +358,9 @@ function clearStudentHistoryPrompt() {
   alert("Historique de l'élève supprimé.");
   afficherTableau();
 }
-updateNotif();
 
+updateNotif();
 </script>
+
 </body>
 </html>
