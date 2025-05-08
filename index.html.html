@@ -130,6 +130,29 @@ const studentAccounts = {"abdul_id": "abdul@234", "adam_id": "adam%288", "ahmad_
 const studentFullNames = {"abdul_id": "Abdul Rahman KASSEM", "adam_id": "Adam ABI KHOUZAM", "ahmad_id": "Ahmad KOUCHE", "ali_id": "Ali SHAER", "alicia_id": "Alicia IBRAHIM", "amin_id": "Amin RAYESS", "assaad_id": "Assaad DIAB", "bilal_id": "Bilal MEHYO", "ghida_id": "Ghida HAIDAR AHMAD", "hanan_id": "Hanan SADDIK", "hassan_id": "Hassan RAHAL", "julia_id": "Julia Sophie JAMALEDDINE", "kelly_id": "Kelly MAZRAANI", "lana_id": "Lana JIZI", "mia_id": "Mia BARADA", "mila_id": "Mila NAJMEDDINE", "nour_id": "Nour MAHMOUD", "omar_id": "Omar HAMZE SINNO", "ralph_id": "Ralph RAHI", "rami_id": "Rami FAWAZ", "talal_id": "Talal ITANI", "taleen_id": "Taleen Farah PHARAON", "yahya_id": "Yahya HOURI HOMSI", "yasmina_id": "Yasmina MOUSSA", "yasmine_id": "Yasmine CHEHAITLY", "julia_id2": "Julia HASSAN"};
 
 let notifications = JSON.parse(localStorage.getItem("notifications_v2") || "[]");
+const BIN_ID = "681c795f8960c979a5957527";
+const API_KEY = "$2a$10$e8COjJNqV/ReJs5XiIW7aOntP2QEh3F8EDXCeUmx4oMyRzg2NHobm";
+
+function loadOnlineData(callback) {
+  fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`, {
+    headers: { "X-Master-Key": API_KEY }
+  })
+    .then(res => res.json())
+    .then(json => callback(json.record.data))
+    .catch(() => callback([]));
+}
+
+function saveOnlineData(data) {
+  fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+      "X-Master-Key": API_KEY
+    },
+    body: JSON.stringify({ data })
+  });
+}
+
 
 function showLoginForm() {
   document.getElementById("login-form").classList.remove("hidden");
@@ -138,44 +161,42 @@ function login() {
   const role = document.getElementById("role").value;
   const user = document.getElementById("username").value.trim().toLowerCase();
   const pass = document.getElementById("password").value.trim();
+
   if (role === "prof") {
     if (teacherAccounts[user] === pass) {
       document.getElementById("login-section").classList.add("hidden");
       document.getElementById("professor-section").classList.remove("hidden");
       afficherTableau();
       updateNotif();
-    } else alert("Identifiants professeur incorrects.");
-  } else if (role === "eleve") {
+    } else {
+      alert("Identifiants professeur incorrects.");
+    }
+  }
+
+  else if (role === "eleve") {
     if (studentAccounts[user] === pass) {
       localStorage.setItem("currentStudent", user);
       document.getElementById("login-section").classList.add("hidden");
       document.getElementById("student-section").classList.remove("hidden");
       document.getElementById("student-welcome").innerText = "Bonjour " + studentFullNames[user];
-      loadBooks();
-      
-    const allRoles = data.filter(e => e.student === student).map(e => e.role);
-    const uniqueRoles = [...new Set(allRoles)];
-   if (uniqueRoles.length === 4) {
-  alert("Tu as complété les 4 rôles. Tu peux maintenant recommencer avec les mêmes rôles sur d'autres livres !");
-}
 
-    updateRoles();
-    
-    } else alert("Identifiants élève incorrects.");
+      loadOnlineData((data) => {
+        localStorage.setItem("cercleData_v2", JSON.stringify(data));
+        loadBooks();
+        updateRoles();
+
+        const allRoles = data.filter(e => e.student === user).map(e => e.role);
+        const uniqueRoles = [...new Set(allRoles)];
+        if (uniqueRoles.length === 4) {
+          alert("Tu as complété les 4 rôles. Tu peux maintenant recommencer avec les mêmes rôles sur d'autres livres !");
+        }
+      });
+    } else {
+      alert("Identifiants élève incorrects.");
+    }
   }
 }
-function loadBooks() {
-  document.getElementById("book").innerHTML = `<option value="">-- Sélectionner --</option>`;
 
-  const bookSelect = document.getElementById("book");
-  const books = ["La belle des eaux", "Les petites reines", "La 6ème", "Mes parents sont dans ma classe", "Niin", "JEfferson", "Trefle  d or", "Le fermier Gill", "Les 2 bossus", "Le journal d une grosse patate", "La belle aux cheveux d or", "Reves amers", "Un drole d ange gardien", "Panique dans la mythologie", "Mon père est une saucisse", "Les cousins Karlson", "Télémaque", "L’enfant loup.", "Dieux et héros des romains", "Theo", "6e pire année", "Swimming", "L’enfant océan", "La jeune fille", "Mimsi Pocket", "135 jours", "La malédiction du corbeau", "Le voyage inspiré", "Slam Dunk", "Le faucon déniché", "Le mystère Dédale"];
-  books.forEach(book => {
-    let opt = document.createElement("option");
-    opt.textContent = book;
-    opt.value = book;
-    bookSelect.appendChild(opt);
-  });
-}
 function updateRoles() {
   const book = document.getElementById("book").value;
   const student = localStorage.getItem("currentStudent");
@@ -279,6 +300,7 @@ function clearStudentHistoryPrompt() {
   let data = JSON.parse(localStorage.getItem("cercleData_v2") || "[]");
   data = data.filter(e => e.student !== studentId);
   localStorage.setItem("cercleData_v2", JSON.stringify(data));
+  saveOnlineData(data);
   alert("Historique de l'élève supprimé.");
   afficherTableau();
 }
