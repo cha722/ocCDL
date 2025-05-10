@@ -219,7 +219,7 @@ function login() {
   updateNotif();
 };
     });
-  } else if (role === "eleve") {
+  } else if (role === "eleve" && studentAccounts[user] && atob(studentAccounts[user]) == pass) {
     if (atob(studentAccounts[user] || "") === pass) {
       localStorage.setItem("currentStudent", user);
       document.getElementById("login-section").classList.add("hidden");
