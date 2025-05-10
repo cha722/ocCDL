@@ -211,9 +211,13 @@ const API_KEY = "$2a$10$e8COjJNqV/ReJs5XiIW7aOntP2QEh3F8EDXCeUmx4oMyRzg2NHobm";
 function showLoginForm() {
   const role = document.getElementById("role").value;
   const loginForm = document.getElementById("login-form");
+
   if (role === "eleve" || role === "prof") {
     loginForm.classList.remove("hidden");
   } else {
+    loginForm.classList.add("hidden");
+  }
+} else {
     loginForm.classList.add("hidden");
   }
 }
