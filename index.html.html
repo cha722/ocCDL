@@ -245,8 +245,16 @@ function saveOnlineData(data) {
 }
 
 function showLoginForm() {
-  document.getElementById("login-form").classList.remove("hidden");
+  const role = document.getElementById("role").value;
+  const loginForm = document.getElementById("login-form");
+
+  if (role === "eleve" || role === "prof") {
+    loginForm.classList.remove("hidden");
+  } else {
+    loginForm.classList.add("hidden");
+  }
 }
+
 
 function login() {
   const role = document.getElementById("role").value;
