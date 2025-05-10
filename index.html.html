@@ -168,18 +168,40 @@ const books = [
 ];
 
 const teacherAccounts = {
-  "omar": "omar1", "mllelagarrigue": "Mlle.VLagarrigue"
+  "omar": "b21hcjE=",
+  "mllelagarrigue": "TWxsZS5WTGFnYXJyaWd1ZQ=="
 };
 
+
 const studentAccounts = {
-  "abdul_id": "abdul@234", "adam_id": "adam%288", "ahmad_id": "ahmad!172", "ali_id": "ali$822",
-  "alicia_id": "alicia#169", "amin_id": "amin#985", "assaad_id": "assaad$668", "bilal_id": "bilal#646",
-  "ghida_id": "ghida%529", "hanan_id": "hanan$842", "hassan_id": "hassan&894", "julia_id": "julia!148",
-  "kelly_id": "kelly%821", "lana_id": "lana#225", "mia_id": "mia&828", "mila_id": "mila@528",
-  "nour_id": "nour$686", "omar_id": "omar@928", "ralph_id": "ralph@237", "rami_id": "rami%316",
-  "talal_id": "talal!699", "taleen_id": "taleen@136", "yahya_id": "yahya#836", "yasmina_id": "yasmina%547",
-  "yasmine_id": "yasmine$909", "julia_id2": "julia%884"
+  "abdul_id": "YWJkdWwlMjQyMzQ=",
+  "adam_id": "YWRhbSUyODg=",
+  "ahmad_id": "YWhtYWQlMjExNzI=",
+  "ali_id": "YWxpJDI4Mg==",
+  "alicia_id": "YWxpY2lhJTIxNjk=",
+  "amin_id": "YW1pbiM5ODU=",
+  "assaad_id": "YXNzYWFkJDI2OA==",
+  "bilal_id": "YmlsYWwlIzY0Ng==",
+  "ghida_id": "Z2hpZGElJTUyOQ==",
+  "hanan_id": "aGFuYW4kODQy",
+  "hassan_id": "aGFzc2FuJjg5NA==",
+  "julia_id": "anVsaWElMjExNDg=",
+  "kelly_id": "a2VsbHklMjU4MjE=",
+  "lana_id": "bGFuYSMyMjU=",
+  "mia_id": "bWlhJTI2ODI4",
+  "mila_id": "bWlsYUB1NTI4",
+  "nour_id": "bm91ciQ2ODY=",
+  "omar_id": "b21hckA5Mjg=",
+  "ralph_id": "cmFscGhAMjM3",
+  "rami_id": "cmFtaSUzMTY=",
+  "talal_id": "dGFsYWwhNjk5",
+  "taleen_id": "dGFsZWVuQDEzNg==",
+  "yahya_id": "eWFoeWEjODM2",
+  "yasmina_id": "eWFzbWluYSU1NDc=",
+  "yasmine_id": "eWFzbWluZSQ5MDk=",
+  "julia_hassan": "anVsaWElMjg4NA=="
 };
+
 
 const studentFullNames = {
   "abdul_id": "Abdul Rahman KASSEM", "adam_id": "Adam ABI KHOUZAM", "ahmad_id": "Ahmad KOUCHE", "ali_id": "Ali SHAER",
@@ -188,7 +210,7 @@ const studentFullNames = {
   "kelly_id": "Kelly MAZRAANI", "lana_id": "Lana JIZI", "mia_id": "Mia BARADA", "mila_id": "Mila NAJMEDDINE",
   "nour_id": "Nour MAHMOUD", "omar_id": "Omar HAMZE SINNO", "ralph_id": "Ralph RAHI", "rami_id": "Rami FAWAZ",
   "talal_id": "Talal ITANI", "taleen_id": "Taleen Farah PHARAON", "yahya_id": "Yahya HOURI HOMSI",
-  "yasmina_id": "Yasmina MOUSSA", "yasmine_id": "Yasmine CHEHAITLY", "julia_id2": "Julia HASSAN"
+  "yasmina_id": "Yasmina MOUSSA", "yasmine_id": "Yasmine CHEHAITLY", "julia_hassan": "Julia HASSAN"
 };
 
 let notifications = JSON.parse(localStorage.getItem("notifications_v2") || "[]");
@@ -201,7 +223,12 @@ function loadOnlineData(callback) {
     headers: { "X-Master-Key": API_KEY }
   })
     .then(res => res.json())
-    .then(json => callback(json.record.data))
+  .then(json => {
+  notifications = json.record.notifications || [];
+  localStorage.setItem("notifications_v2", JSON.stringify(notifications));
+  callback(json.record.data);
+})
+
     .catch(() => callback([]));
 }
 
@@ -212,7 +239,8 @@ function saveOnlineData(data) {
       "Content-Type": "application/json",
       "X-Master-Key": API_KEY
     },
-    body: JSON.stringify({ data })
+   body: JSON.stringify({ data, notifications })
+
   });
 }
 
@@ -225,7 +253,8 @@ function login() {
   const user = document.getElementById("username").value.trim().toLowerCase();
   const pass = document.getElementById("password").value.trim();
 
-if (teacherAccounts[user] === pass) {
+if (atob(teacherAccounts[user] || "") === pass) {
+
   document.getElementById("login-section").classList.add("hidden");
   document.getElementById("professor-section").classList.remove("hidden");
 
@@ -242,11 +271,14 @@ if (teacherAccounts[user] === pass) {
 
 
   else if (role === "eleve") {
-    if (studentAccounts[user] === pass) {
+  if (atob(studentAccounts[user] || "") === pass) {
+
       localStorage.setItem("currentStudent", user);
       document.getElementById("login-section").classList.add("hidden");
       document.getElementById("student-section").classList.remove("hidden");
       document.getElementById("student-welcome").innerText = "Bonjour " + studentFullNames[user];
+      updateNotif();
+
 
       loadOnlineData((data) => {
         localStorage.setItem("cercleData_v2", JSON.stringify(data));
@@ -387,7 +419,7 @@ function clearStudentHistoryPrompt() {
     alert("Veuillez contacter Omar Chaar pour activer ce bouton.");
     return;
   }
-  const studentId = prompt("Entrez l'identifiant de l'élève à effacer (ex: celinefawaz)");
+  const studentId = prompt("Entrez l'identifiant de l'élève à effacer (ex: rami_id)");
   if (!studentId) return;
   let data = JSON.parse(localStorage.getItem("cercleData_v2") || "[]");
   data = data.filter(e => e.student !== studentId);
@@ -414,18 +446,28 @@ function exportHistorique(format = "pdf") {
     URL.revokeObjectURL(url);
   }
 
-  if (format === "pdf") {
-    const win = window.open("", "", "height=700,width=900");
-    win.document.write("<html><head><title>Historique</title><style>table{border-collapse:collapse;width:100%}td,th{border:1px solid #888;padding:8px}</style></head><body>");
-    win.document.write("<h2>Historique du Cercle de Lecture</h2><table><tr><th>Élève</th><th>Livre</th><th>Rôle</th><th>Date</th></tr>");
-    data.forEach(e => {
-      win.document.write(`<tr><td>${studentFullNames[e.student] || e.student}</td><td>${e.book}</td><td>${e.role}</td><td>${e.date}</td></tr>`);
-    });
-    win.document.write("</table></body></html>");
-    win.document.close();
-    win.print();
+ if (format === "pdf") {
+  const win = window.open("", "_blank", "height=700,width=900");
+  if (!win) {
+    alert("Veuillez autoriser les pop-ups pour exporter le PDF.");
+    return;
   }
+
+  win.document.write("<html><head><title>Historique</title><style>");
+  win.document.write("body{font-family:sans-serif;} table{border-collapse:collapse;width:100%} td,th{border:1px solid #888;padding:8px}");
+  win.document.write("</style></head><body>");
+  win.document.write("<h2>Historique du Cercle de Lecture</h2><table><tr><th>Élève</th><th>Livre</th><th>Rôle</th><th>Date</th></tr>");
+  data.forEach(e => {
+    win.document.write(`<tr><td>${studentFullNames[e.student] || e.student}</td><td>${e.book}</td><td>${e.role}</td><td>${e.date}</td></tr>`);
+  });
+  win.document.write("</table></body></html>");
+  win.document.close();
+
+  setTimeout(() => {
+    win.print();
+  }, 500); // Wait to make sure content is rendered
 }
+
 
 updateNotif();
 </script>
