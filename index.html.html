@@ -204,6 +204,7 @@ function login() {
   const user = document.getElementById("username").value.trim().toLowerCase();
   const pass = document.getElementById("password").value.trim();
 
+  // PROFESSEUR LOGIN
   if (role === "prof" && teacherAccounts[user] && atob(teacherAccounts[user]) === pass) {
     document.getElementById("login-section").classList.add("hidden");
     document.getElementById("professor-section").classList.remove("hidden");
@@ -215,32 +216,33 @@ function login() {
     loadOnlineData((data) => {
       localStorage.setItem("cercleData_v2", JSON.stringify(data));
       afficherTableau();
-      window.onload = function() {
-  updateNotif();
-};
+      updateNotif();
     });
-  } else if (role === "eleve" && studentAccounts[user] && atob(studentAccounts[user]) == pass) {
-    if (atob(studentAccounts[user] || "") === pass) {
-      localStorage.setItem("currentStudent", user);
-      document.getElementById("login-section").classList.add("hidden");
-      document.getElementById("student-section").classList.remove("hidden");
-      document.getElementById("student-welcome").innerText = "Bonjour " + studentFullNames[user];
 
-      loadOnlineData((data) => {
-        localStorage.setItem("cercleData_v2", JSON.stringify(data));
-        loadBooks();
-        updateRoles();
-        const allRoles = data.filter(e => e.student === user).map(e => e.role);
-        const uniqueRoles = [...new Set(allRoles)];
-        if (uniqueRoles.length === 4) {
-          alert("Tu as complété les 4 rôles. Tu peux maintenant recommencer avec les mêmes rôles sur d'autres livres !");
-        }
-      });
-    } else {
-      alert("Identifiants élève incorrects.");
-    }
+  // ÉLÈVE LOGIN
+  } else if (role === "eleve" && studentAccounts[user] && atob(studentAccounts[user]) === pass) {
+    localStorage.setItem("currentStudent", user);
+    document.getElementById("login-section").classList.add("hidden");
+    document.getElementById("student-section").classList.remove("hidden");
+    document.getElementById("student-welcome").innerText = "Bonjour " + studentFullNames[user];
+
+    loadOnlineData((data) => {
+      localStorage.setItem("cercleData_v2", JSON.stringify(data));
+      loadBooks();
+      updateRoles();
+
+      const allRoles = data.filter(e => e.student === user).map(e => e.role);
+      const uniqueRoles = [...new Set(allRoles)];
+      if (uniqueRoles.length === 4) {
+        alert("Tu as complété les 4 rôles. Tu peux maintenant recommencer avec les mêmes rôles sur d'autres livres !");
+      }
+    });
+
+  } else {
+    alert("Identifiants incorrects.");
   }
 }
+
 
 function loadBooks() {
   const select = document.getElementById("book");
