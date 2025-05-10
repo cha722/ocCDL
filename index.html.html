@@ -165,32 +165,13 @@ const teacherAccounts = {
 };
 
 const studentAccounts = {
-  "abdul_id": "abdul@234",
-  "adam_id": "adam%288",
-  "ahmad_id": "ahmad!172",
-  "ali_id": "ali$822",
-  "alicia_id": "alicia#169",
-  "amin_id": "amin#985",
-  "assaad_id": "assaad$668",
-  "bilal_id": "bilal#646",
-  "ghida_id": "ghida%529",
-  "hanan_id": "hanan$842",
-  "hassan_id": "hassan&894",
-  "julia_id": "julia!148",
-  "kelly_id": "kelly%821",
-  "lana_id": "lana#225",
-  "mia_id": "mia&828",
-  "mila_id": "mila@528",
-  "nour_id": "nour$686",
-  "omar_id": "omar@928",
-  "ralph_id": "ralph@237",
-  "rami_id": "rami%316",
-  "talal_id": "talal!699",
-  "taleen_id": "taleen@136",
-  "yahya_id": "yahya#836",
-  "yasmina_id": "yasmina%547",
-  "yasmine_id": "yasmine$909",
-  "julia_hassan": "julia%884"
+  "abdul_id": "abdul@234", "adam_id": "adam%288", "ahmad_id": "ahmad!172", "ali_id": "ali$822",
+  "alicia_id": "alicia#169", "amin_id": "amin#985", "assaad_id": "assaad$668", "bilal_id": "bilal#646",
+  "ghida_id": "ghida%529", "hanan_id": "hanan$842", "hassan_id": "hassan&894", "julia_id": "julia!148",
+  "kelly_id": "kelly%821", "lana_id": "lana#225", "mia_id": "mia&828", "mila_id": "mila@528",
+  "nour_id": "nour$686", "omar_id": "omar@928", "ralph_id": "ralph@237", "rami_id": "rami%316",
+  "talal_id": "talal!699", "taleen_id": "taleen@136", "yahya_id": "yahya#836", "yasmina_id": "yasmina%547",
+  "yasmine_id": "yasmine$909", "julia_hassan": "julia%884"
 };
 
 const studentFullNames = {
@@ -211,15 +192,7 @@ const API_KEY = "$2a$10$e8COjJNqV/ReJs5XiIW7aOntP2QEh3F8EDXCeUmx4oMyRzg2NHobm";
 function showLoginForm() {
   const role = document.getElementById("role").value;
   const loginForm = document.getElementById("login-form");
-
-  if (role === "eleve" || role === "prof") {
-    loginForm.classList.remove("hidden");
-  } else {
-    loginForm.classList.add("hidden");
-  }
-} else {
-    loginForm.classList.add("hidden");
-  }
+  loginForm.classList.toggle("hidden", !(role === "eleve" || role === "prof"));
 }
 
 function login() {
@@ -230,11 +203,7 @@ function login() {
   if (role === "prof" && teacherAccounts[user] === pass) {
     document.getElementById("login-section").classList.add("hidden");
     document.getElementById("professor-section").classList.remove("hidden");
-
-    if (user === "mllelagarrigue") {
-      document.getElementById("clear-history-button").style.display = "none";
-    }
-
+    if (user === "mllelagarrigue") document.getElementById("clear-history-button").style.display = "none";
     loadOnlineData((data) => {
       localStorage.setItem("cercleData_v2", JSON.stringify(data));
       afficherTableau();
@@ -246,12 +215,10 @@ function login() {
     document.getElementById("login-section").classList.add("hidden");
     document.getElementById("student-section").classList.remove("hidden");
     document.getElementById("student-welcome").innerText = "Bonjour " + studentFullNames[user];
-
     loadOnlineData((data) => {
       localStorage.setItem("cercleData_v2", JSON.stringify(data));
       loadBooks();
       updateRoles();
-
       const allRoles = data.filter(e => e.student === user).map(e => e.role);
       const uniqueRoles = [...new Set(allRoles)];
       if (uniqueRoles.length === 4) {
@@ -261,29 +228,6 @@ function login() {
 
   } else {
     alert("Identifiants incorrects.");
-  }
-};
-    });
-  } else if (role === "eleve") {
-    if (atob(studentAccounts[user] || "") === pass) {
-      localStorage.setItem("currentStudent", user);
-      document.getElementById("login-section").classList.add("hidden");
-      document.getElementById("student-section").classList.remove("hidden");
-      document.getElementById("student-welcome").innerText = "Bonjour " + studentFullNames[user];
-
-      loadOnlineData((data) => {
-        localStorage.setItem("cercleData_v2", JSON.stringify(data));
-        loadBooks();
-        updateRoles();
-        const allRoles = data.filter(e => e.student === user).map(e => e.role);
-        const uniqueRoles = [...new Set(allRoles)];
-        if (uniqueRoles.length === 4) {
-          alert("Tu as complété les 4 rôles. Tu peux maintenant recommencer avec les mêmes rôles sur d'autres livres !");
-        }
-      });
-    } else {
-      alert("Identifiants élève incorrects.");
-    }
   }
 }
 
@@ -302,7 +246,6 @@ function updateRoles() {
   const book = document.getElementById("book").value;
   const student = localStorage.getItem("currentStudent");
   const data = JSON.parse(localStorage.getItem("cercleData_v2") || "[]");
-
   const group = data.filter(e => e.book === book);
   const studentRoles = data.filter(e => e.student === student).map(e => e.role);
   const uniqueStudentRoles = [...new Set(studentRoles)];
@@ -312,14 +255,10 @@ function updateRoles() {
     const taken = group.some(e => e.role === role);
     const alreadyDid = studentRoles.includes(role);
     let disable = false;
-    if (uniqueStudentRoles.length < 4) {
-      disable = taken || alreadyDid;
-    } else {
-      disable = taken;
-    }
+    if (uniqueStudentRoles.length < 4) disable = taken || alreadyDid;
+    else disable = taken;
     options += `<option value="${role}" ${disable ? 'disabled' : ''}>${role}${disable ? ' ❌' : ''}</option>`;
   });
-
   document.getElementById("roleChoice").innerHTML = options;
 }
 
@@ -329,7 +268,6 @@ function enregistrerRole() {
   const student = localStorage.getItem("currentStudent");
   if (!book || !role) return alert("Sélectionne un livre et un rôle.");
   let data = JSON.parse(localStorage.getItem("cercleData_v2") || "[]");
-
   const group = data.filter(e => e.book === book);
   if (group.length >= 4) return alert("Ce livre est déjà complet.");
   if (group.find(e => e.role === role)) return alert("Ce rôle est déjà pris.");
@@ -341,16 +279,7 @@ function enregistrerRole() {
   alert("Ton rôle est enregistré !");
   notifications.push(`${student} a emprunté le livre "${book}"`);
   localStorage.setItem("notifications_v2", JSON.stringify(notifications));
-  window.onload = function() {
   updateNotif();
-};
-
-  const allRoles = data.filter(e => e.student === student).map(e => e.role);
-  const uniqueRoles = [...new Set(allRoles)];
-  if (uniqueRoles.length === 4) {
-    alert("Tu as complété les 4 rôles. Tu peux maintenant recommencer avec les mêmes rôles sur d'autres livres !");
-  }
-
   updateRoles();
 }
 
@@ -405,10 +334,7 @@ function voirHistoriqueTous() {
 
 function clearStudentHistoryPrompt() {
   const prof = document.getElementById("username").value.trim().toLowerCase();
-  if (prof !== "omar") {
-    alert("Veuillez contacter Omar Chaar pour activer ce bouton.");
-    return;
-  }
+  if (prof !== "omar") return alert("Veuillez contacter Omar Chaar pour activer ce bouton.");
   const studentId = prompt("Entrez l'identifiant de l'élève à effacer (ex: rami_id)");
   if (!studentId) return;
   let data = JSON.parse(localStorage.getItem("cercleData_v2") || "[]");
@@ -438,10 +364,7 @@ function exportHistorique(format = "pdf") {
 
   if (format === "pdf") {
     const win = window.open("", "_blank", "height=700,width=900");
-    if (!win) {
-      alert("Veuillez autoriser les pop-ups pour exporter le PDF.");
-      return;
-    }
+    if (!win) return alert("Veuillez autoriser les pop-ups pour exporter le PDF.");
     win.document.write("<html><head><title>Historique</title><style>body{font-family:sans-serif;} table{border-collapse:collapse;width:100%} td,th{border:1px solid #888;padding:8px}</style></head><body>");
     win.document.write("<h2>Historique du Cercle de Lecture</h2><table><tr><th>Élève</th><th>Livre</th><th>Rôle</th><th>Date</th></tr>");
     data.forEach(e => {
@@ -449,9 +372,7 @@ function exportHistorique(format = "pdf") {
     });
     win.document.write("</table></body></html>");
     win.document.close();
-    setTimeout(() => {
-      win.print();
-    }, 500);
+    setTimeout(() => win.print(), 500);
   }
 }
 
@@ -483,6 +404,7 @@ window.onload = function() {
   updateNotif();
 };
 </script>
+
 
 </body>
 </html>
