@@ -160,18 +160,37 @@ const roles = ["Animateur", "Maître des mots", "Maître des liens", "Maître de
 const books = ["La belle des eaux", "Les petites reines", "La 6ème", "Mes parents sont dans ma classe", "Niin", "JEfferson", "Trefle d or", "Le fermier Gill", "Les 2 bossus", "Le journal d une grosse patate", "La belle aux cheveux d or", "Reves amers", "Un drole d ange gardien", "Panique dans la mythologie", "Mon père est une saucisse", "Les cousins Karlson", "Télémaque", "L’enfant loup.", "Dieux et héros des romains", "Theo", "6e pire année", "Swimming", "L’enfant océan", "La jeune fille", "Mimsi Pocket", "135 jours", "La malédiction du corbeau", "Le voyage inspiré", "Slam Dunk", "Le faucon déniché", "Le mystère Dédale"];
 
 const teacherAccounts = {
-  "omar": "b21hcjE=",
-  "mllelagarrigue": "TWxsZS5WTGFnYXJyaWd1ZQ=="
+  "omar": "omar1",
+  "mllelagarrigue": "Mlle.VLagarrigue"
 };
 
 const studentAccounts = {
-  "abdul_id": "YWJkdWwlMjQyMzQ=", "adam_id": "YWRhbSUyODg=", "ahmad_id": "YWhtYWQlMjExNzI=", "ali_id": "YWxpJDI4Mg==",
-  "alicia_id": "YWxpY2lhJTIxNjk=", "amin_id": "YW1pbiM5ODU=", "assaad_id": "YXNzYWFkJDI2OA==", "bilal_id": "YmlsYWwlIzY0Ng==",
-  "ghida_id": "Z2hpZGElJTUyOQ==", "hanan_id": "aGFuYW4kODQy", "hassan_id": "aGFzc2FuJjg5NA==", "julia_id": "anVsaWElMjExNDg=",
-  "kelly_id": "a2VsbHklMjU4MjE=", "lana_id": "bGFuYSMyMjU=", "mia_id": "bWlhJTI2ODI4", "mila_id": "bWlsYUB1NTI4",
-  "nour_id": "bm91ciQ2ODY=", "omar_id": "b21hckA5Mjg=", "ralph_id": "cmFscGhAMjM3", "rami_id": "cmFtaSUzMTY=",
-  "talal_id": "dGFsYWwhNjk5", "taleen_id": "dGFsZWVuQDEzNg==", "yahya_id": "eWFoeWEjODM2", "yasmina_id": "eWFzbWluYSU1NDc=",
-  "yasmine_id": "eWFzbWluZSQ5MDk=", "julia_hassan": "anVsaWElMjg4NA=="
+  "abdul_id": "abdul@234",
+  "adam_id": "adam%288",
+  "ahmad_id": "ahmad!172",
+  "ali_id": "ali$822",
+  "alicia_id": "alicia#169",
+  "amin_id": "amin#985",
+  "assaad_id": "assaad$668",
+  "bilal_id": "bilal#646",
+  "ghida_id": "ghida%529",
+  "hanan_id": "hanan$842",
+  "hassan_id": "hassan&894",
+  "julia_id": "julia!148",
+  "kelly_id": "kelly%821",
+  "lana_id": "lana#225",
+  "mia_id": "mia&828",
+  "mila_id": "mila@528",
+  "nour_id": "nour$686",
+  "omar_id": "omar@928",
+  "ralph_id": "ralph@237",
+  "rami_id": "rami%316",
+  "talal_id": "talal!699",
+  "taleen_id": "taleen@136",
+  "yahya_id": "yahya#836",
+  "yasmina_id": "yasmina%547",
+  "yasmine_id": "yasmine$909",
+  "julia_hassan": "julia%884"
 };
 
 const studentFullNames = {
@@ -204,8 +223,7 @@ function login() {
   const user = document.getElementById("username").value.trim().toLowerCase();
   const pass = document.getElementById("password").value.trim();
 
-  // PROFESSEUR LOGIN
-  if (role === "prof" && teacherAccounts[user] && atob(teacherAccounts[user]) === pass) {
+  if (role === "prof" && teacherAccounts[user] === pass) {
     document.getElementById("login-section").classList.add("hidden");
     document.getElementById("professor-section").classList.remove("hidden");
 
@@ -219,8 +237,7 @@ function login() {
       updateNotif();
     });
 
-  // ÉLÈVE LOGIN
-  } else if (role === "eleve" && studentAccounts[user] && atob(studentAccounts[user]) === pass) {
+  } else if (role === "eleve" && studentAccounts[user] === pass) {
     localStorage.setItem("currentStudent", user);
     document.getElementById("login-section").classList.add("hidden");
     document.getElementById("student-section").classList.remove("hidden");
@@ -241,8 +258,30 @@ function login() {
   } else {
     alert("Identifiants incorrects.");
   }
-}
+};
+    });
+  } else if (role === "eleve") {
+    if (atob(studentAccounts[user] || "") === pass) {
+      localStorage.setItem("currentStudent", user);
+      document.getElementById("login-section").classList.add("hidden");
+      document.getElementById("student-section").classList.remove("hidden");
+      document.getElementById("student-welcome").innerText = "Bonjour " + studentFullNames[user];
 
+      loadOnlineData((data) => {
+        localStorage.setItem("cercleData_v2", JSON.stringify(data));
+        loadBooks();
+        updateRoles();
+        const allRoles = data.filter(e => e.student === user).map(e => e.role);
+        const uniqueRoles = [...new Set(allRoles)];
+        if (uniqueRoles.length === 4) {
+          alert("Tu as complété les 4 rôles. Tu peux maintenant recommencer avec les mêmes rôles sur d'autres livres !");
+        }
+      });
+    } else {
+      alert("Identifiants élève incorrects.");
+    }
+  }
+}
 
 function loadBooks() {
   const select = document.getElementById("book");
