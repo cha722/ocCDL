@@ -1049,7 +1049,7 @@ function exportHistorique(format = "pdf") {
 }
 
 async function clearStudentHistoryPrompt() {
-  const studentId = prompt("Entrez l'identifiant de l'élève à effacer (ex: celinefawaz)");
+  const studentId = prompt("Entrez l'identifiant de l'élève à effacer (ex: adam_id)");
   if (!studentId) return;
   
   appData.readingData = appData.readingData.filter(e => e.student !== studentId);
